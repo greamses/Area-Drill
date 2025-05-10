@@ -8,10 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const shapeSelector = document.getElementById('shapeSelector');
   const labelsContainer = document.getElementById('labelsContainer');
   const shapeContainer = document.getElementById('shapeContainer');
-  const shape = document.querySelector('.shape');
-  const answerInput = document.querySelector('input[type="text"]');
-  const checkButton = document.querySelector('button');
-  const feedback = document.querySelector('.feedback');
   
   let currentQuestion = null;
   let score = 0;
@@ -19,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let timeLeft = 45;
   const timerDisplay = document.createElement('div');
   timerDisplay.id = 'timerDisplay';
-  shapeContainer.append(timerDisplay);
+  shapeContainer.appendChild(timerDisplay);
   
   const shapes = [
     { id: 'rectangle', name: 'Rectangle', params: ['length (l)', 'width (w)'] },
@@ -56,9 +52,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function endGame(message) {
     feedbackDisplay.textContent = message;
-    feedbackDisplay.style.color = 'red';
+    feedbackDisplay.classList.add('visible', 'incorrect');
+    feedbackDisplay.classList.remove('correct');
     scoreDisplay.textContent = `Final Score: ${score}`;
-    score = 0
+    score = 0;
     userAnswerInput.disabled = true;
     submitBtn.disabled = true;
     shapeSelector.disabled = true;
@@ -73,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
       shapeSelector.disabled = false;
       feedbackDisplay.innerHTML = '';
       newQuestion(shapeSelector.value);
-      this.remove();
+      playAgainBtn.remove();
     });
     feedbackDisplay.appendChild(document.createElement('br'));
     feedbackDisplay.appendChild(playAgainBtn);
@@ -104,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     questionDisplay.textContent = questionText;
     userAnswerInput.value = '';
     feedbackDisplay.textContent = '';
+    feedbackDisplay.className = 'feedback';
     userAnswerInput.focus();
     startTimer();
   }
@@ -113,9 +111,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (currentQuestion.calculationType === 'find_l_and_w') {
       const userAnswers = userAnswerInput.value.split(',').map(val => parseFloat(val.trim()));
-      console.log(userAnswers)
       if (userAnswers.length !== 2 || userAnswers.some(isNaN)) {
-        endGame(`Invalid answer. Please enter two numbers separated by a space. The correct answers were ${currentQuestion.l} and ${currentQuestion.w}. Game over!`);
+        endGame(`Invalid answer. Please enter two numbers separated by a comma. The correct answers were ${currentQuestion.l} and ${currentQuestion.w}. Game over!`);
         return;
       }
       
@@ -125,14 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       if ((Math.abs(userL - correctL) < 0.01 && Math.abs(userW - correctW) < 0.01) ||
         (Math.abs(userL - correctW) < 0.01 && Math.abs(userW - correctL) < 0.01)) {
-        feedbackDisplay.textContent = 'Correct! Well done!';
-        feedbackDisplay.style.color = 'green';
-        score++;
-        scoreDisplay.textContent = `Score: ${score}`;
-        
-        setTimeout(() => {
-          newQuestion(currentQuestion.shape);
-        }, 500);
+        handleCorrectAnswer();
       } else {
         endGame(`Incorrect. The correct answers are ${currentQuestion.l} and ${currentQuestion.w}. Game over!`);
       }
@@ -146,16 +136,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (Math.abs(userAnswer - currentQuestion.answer) < 0.01) {
-      feedbackDisplay.textContent = 'Correct! Well done!';
-      feedbackDisplay.style.color = 'green';
-      score++;
-      scoreDisplay.textContent = `Score: ${score}`;
-      setTimeout(() => {
-        newQuestion(currentQuestion.shape);
-      }, 500);
+      handleCorrectAnswer();
     } else {
       endGame(`Incorrect. The correct answer is ${currentQuestion.answer.toFixed(2)}. Game over!`);
     }
+  }
+  
+  function handleCorrectAnswer() {
+    feedbackDisplay.textContent = 'Correct! Well done!';
+    feedbackDisplay.classList.remove('incorrect');
+    feedbackDisplay.classList.add('visible', 'correct');
+    score++;
+    scoreDisplay.textContent = `Score: ${score}`;
+    setTimeout(() => {
+      newQuestion(currentQuestion.shape);
+    }, 500);
   }
   
   function getRandomInt(min, max) {
@@ -165,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function generateQuestion(shapeId) {
     let question = { shape: shapeId };
     const calculationTypes = ['normal', 'A_from_P', 'P_from_A', 'find_l_and_w'];
+    
     if (shapeId === 'square') {
       calculationTypes.splice(calculationTypes.indexOf('find_l_and_w'), 1);
       calculationTypes.push('A_from_d');
@@ -221,20 +217,17 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
         const triple = triples[Math.floor(Math.random() * triples.length)];
         question.s = triple[0];
-        question.d = triple[2]; // diagonal = hypotenuse
+        question.d = triple[2];
         
         if (question.calculationType === 'A_from_d') {
-          // Calculate area from diagonal
           question.givenValue = question.d;
           question.answer = question.s * question.s;
           question.hiddenParam = 's';
         } else if (question.calculationType === 'A_from_P') {
-          // Calculate area from perimeter
           question.givenValue = 4 * question.s;
           question.answer = question.s * question.s;
           question.hiddenParam = 's';
         } else if (question.calculationType === 'P_from_A') {
-          // Calculate perimeter from area
           question.givenValue = question.s * question.s;
           question.answer = 4 * question.s;
           question.hiddenParam = 's';
@@ -286,7 +279,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const centerY = containerHeight / 2;
     const scale = 15;
     
-    // Create SVG element
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
     svg.setAttribute("width", "100%");
@@ -299,7 +291,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let rectWidth = question.l * scale;
         let rectHeight = question.w * scale;
         
-        // Draw rectangle
         const rect = document.createElementNS(svgNS, "rect");
         rect.setAttribute("x", centerX - rectWidth / 2);
         rect.setAttribute("y", centerY - rectHeight / 2);
@@ -310,9 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rect.setAttribute("stroke-width", "2");
         svg.appendChild(rect);
         
-        // Add dimension lines and labels
         if (question.calculationType === 'find_l_and_w') {
-          // Hide both dimensions
           addDimensionLine(svg, centerX - rectWidth / 2, centerY - rectHeight / 2 - 10,
             centerX + rectWidth / 2, centerY - rectHeight / 2 - 10,
             '?', 'top');
@@ -321,9 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
             centerX - rectWidth / 2 - 10, centerY + rectHeight / 2,
             '?', 'left');
         } else if (question.calculationType === 'A_from_P' || question.calculationType === 'P_from_A') {
-          // Show one dimension, hide the other based on hiddenParam
           if (question.hiddenParam === 'w') {
-            // Show length, hide width
             addDimensionLine(svg, centerX - rectWidth / 2, centerY - rectHeight / 2 - 10,
               centerX + rectWidth / 2, centerY - rectHeight / 2 - 10,
               `${question.l}`, 'top');
@@ -332,7 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
               centerX - rectWidth / 2 - 10, centerY + rectHeight / 2,
               '?', 'left');
           } else {
-            // Show width, hide length
             addDimensionLine(svg, centerX - rectWidth / 2, centerY - rectHeight / 2 - 10,
               centerX + rectWidth / 2, centerY - rectHeight / 2 - 10,
               '?', 'top');
@@ -343,7 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         } else if (question.isReverse) {
           if (question.hiddenParam === 'w') {
-            // Show length, hide width
             addDimensionLine(svg, centerX - rectWidth / 2, centerY - rectHeight / 2 - 10,
               centerX + rectWidth / 2, centerY - rectHeight / 2 - 10,
               `${question.l}`, 'top');
@@ -352,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
               centerX - rectWidth / 2 - 10, centerY + rectHeight / 2,
               '?', 'left');
           } else {
-            // Show width, hide length
             addDimensionLine(svg, centerX - rectWidth / 2, centerY - rectHeight / 2 - 10,
               centerX + rectWidth / 2, centerY - rectHeight / 2 - 10,
               '?', 'top');
@@ -362,7 +346,6 @@ document.addEventListener('DOMContentLoaded', function() {
               `${question.w}`, 'left');
           }
         } else {
-          // Show both dimensions
           addDimensionLine(svg, centerX - rectWidth / 2, centerY - rectHeight / 2 - 10,
             centerX + rectWidth / 2, centerY - rectHeight / 2 - 10,
             `${question.l}`, 'top');
@@ -377,7 +360,6 @@ document.addEventListener('DOMContentLoaded', function() {
       case 'square': {
         let squareSize = question.s * scale;
         
-        // Draw square
         const square = document.createElementNS(svgNS, "rect");
         square.setAttribute("x", centerX - squareSize / 2);
         square.setAttribute("y", centerY - squareSize / 2);
@@ -389,7 +371,6 @@ document.addEventListener('DOMContentLoaded', function() {
         svg.appendChild(square);
         
         if (question.calculationType === 'A_from_d') {
-          // Draw diagonal for square
           const diagonal = document.createElementNS(svgNS, "line");
           diagonal.setAttribute("x1", centerX - squareSize / 2);
           diagonal.setAttribute("y1", centerY - squareSize / 2);
@@ -400,12 +381,10 @@ document.addEventListener('DOMContentLoaded', function() {
           diagonal.setAttribute("stroke-dasharray", "5,5");
           svg.appendChild(diagonal);
           
-          // Add dimension label for side
           addDimensionLine(svg, centerX - squareSize / 2, centerY - squareSize / 2 - 10,
             centerX + squareSize / 2, centerY - squareSize / 2 - 10,
             '?', 'top');
           
-          // Add label for diagonal
           const diagText = document.createElementNS(svgNS, "text");
           diagText.setAttribute("x", centerX);
           diagText.setAttribute("y", centerY - 5);
@@ -415,12 +394,10 @@ document.addEventListener('DOMContentLoaded', function() {
           diagText.textContent = `d = ${question.d.toFixed(2)}`;
           svg.appendChild(diagText);
         } else if (question.calculationType === 'A_from_P' || question.calculationType === 'P_from_A' || question.isReverse) {
-          // Show ? for side dimension
           addDimensionLine(svg, centerX - squareSize / 2, centerY - squareSize / 2 - 10,
             centerX + squareSize / 2, centerY - squareSize / 2 - 10,
             '?', 'top');
         } else {
-          // Show side dimension
           addDimensionLine(svg, centerX - squareSize / 2, centerY - squareSize / 2 - 10,
             centerX + squareSize / 2, centerY - squareSize / 2 - 10,
             `${question.s}`, 'top');
@@ -434,11 +411,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const triangle = document.createElementNS(svgNS, "path");
         const x1 = centerX - triWidth / 2;
-        const y1 = centerY + triHeight / 2; // Bottom left
+        const y1 = centerY + triHeight / 2;
         const x2 = centerX + triWidth / 2;
-        const y2 = centerY + triHeight / 2; // Bottom right
+        const y2 = centerY + triHeight / 2;
         const x3 = centerX;
-        const y3 = centerY - triHeight / 2; // Top
+        const y3 = centerY - triHeight / 2;
         
         triangle.setAttribute("d", `M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} Z`);
         triangle.setAttribute("fill", "#F4433699");
@@ -458,7 +435,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (question.isReverse) {
           if (question.hiddenParam === 'b') {
-            // Show height, hide base
             addDimensionLine(svg, centerX - triWidth / 2, centerY + triHeight / 2 + 10,
               centerX + triWidth / 2, centerY + triHeight / 2 + 10,
               '?', 'bottom');
@@ -522,7 +498,6 @@ document.addEventListener('DOMContentLoaded', function() {
       tick2.setAttribute("stroke-width", "1");
       svg.appendChild(tick2);
     } else {
-      // Horizontal tick marks for vertical dimension
       const tick1 = document.createElementNS(svgNS, "line");
       tick1.setAttribute("x1", x1 - 5);
       tick1.setAttribute("y1", y1);
@@ -542,7 +517,6 @@ document.addEventListener('DOMContentLoaded', function() {
       svg.appendChild(tick2);
     }
     
-    // Add the text label
     const textElement = document.createElementNS(svgNS, "text");
     
     if (position === 'top') {
@@ -591,97 +565,4 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   newQuestion(shapes[0].id);
-  
-  if (shapeSelector) {
-    shapeSelector.addEventListener('change', function() {
-      if (shape) {
-        shape.classList.remove('shape-change');
-        void shape.offsetWidth;
-        shape.classList.add('shape-change');
-      }
-    });
-  }
-  
-  if (checkButton) {
-    checkButton.addEventListener('click', function(e) {
-      let ripple = document.createElement('span');
-      ripple.classList.add('ripple');
-      this.appendChild(ripple);
-      setTimeout(() => {
-        ripple.remove();
-      }, 1000);
-    });
-  }
-  
-  if (answerInput) {
-    answerInput.addEventListener('focus', function() {
-      this.classList.add('focused');
-    });
-    
-    answerInput.addEventListener('blur', function() {
-      this.classList.remove('focused');
-    });
-  }
-  
-  if (shapeDisplay) {
-    shapeDisplay.addEventListener('mouseenter', function() {
-      if (shape) {
-        shape.style.transform = 'translate(-50%, -50%) scale(1.05)';
-      }
-    });
-    
-    shapeDisplay.addEventListener('mouseleave', function() {
-      if (shape) {
-        shape.style.transform = 'translate(-50%, -50%) scale(1)';
-      }
-    });
-  }
-  
-  if (shapeDisplay) {
-    document.addEventListener('mousemove', function(e) {
-      const moveX = (e.clientX - window.innerWidth / 2) / 50;
-      const moveY = (e.clientY - window.innerHeight / 2) / 50;
-      
-      shapeDisplay.style.transform = `translateX(${moveX}px) translateY(${moveY}px)`;
-    });
-  }
-  
-  const dimensionLabels = document.querySelectorAll('.dimension-label');
-  if (dimensionLabels.length > 0) {
-    dimensionLabels.forEach((label, index) => {
-      label.style.animationDelay = `${0.2 + (index * 0.1)}s`;
-    });
-  }
-  
-  const gameContainer = document.querySelector('.game-container');
-  if (gameContainer) {
-    gameContainer.addEventListener('click', function(e) {
-      if (!e.target.closest('button') &&
-        !e.target.closest('select') &&
-        !e.target.closest('input')) {
-        
-        const ripple = document.createElement('div');
-        ripple.style.position = 'absolute';
-        ripple.style.borderRadius = '50%';
-        ripple.style.width = '5px';
-        ripple.style.height = '5px';
-        ripple.style.background = 'rgba(99, 102, 241, 0.3)';
-        ripple.style.transform = 'scale(1)';
-        ripple.style.opacity = '1';
-        
-        ripple.style.left = `${e.clientX - this.getBoundingClientRect().left}px`;
-        ripple.style.top = `${e.clientY - this.getBoundingClientRect().top}px`;
-        
-        this.appendChild(ripple);
-        
-        ripple.animate([
-          { transform: 'scale(1)', opacity: 1 },
-          { transform: 'scale(100)', opacity: 0 }
-        ], {
-          duration: 800,
-          easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
-        }).onfinish = () => ripple.remove();
-      }
-    });
-  }
 });
