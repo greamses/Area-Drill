@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const shapeSelector = document.getElementById('shapeSelector');
   const labelsContainer = document.getElementById('labelsContainer');
   const shapeContainer = document.getElementById('shapeContainer');
+  const shape = document.querySelector('.shape');
+  const answerInput = document.querySelector('input[type="text"]');
+  const checkButton = document.querySelector('button');
+  const feedback = document.querySelector('.feedback');
   
   let currentQuestion = null;
   let score = 0;
@@ -587,69 +591,28 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   newQuestion(shapes[0].id);
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Get references to key elements
-  const shapeSelector = document.getElementById('shapeSelector');
-  const shapeDisplay = document.querySelector('.shape-display');
-  const shape = document.querySelector('.shape');
-  const answerInput = document.querySelector('input[type="text"]');
-  const checkButton = document.querySelector('button');
-  const feedback = document.querySelector('.feedback');
   
-  // Add animation classes for shape changes
   if (shapeSelector) {
     shapeSelector.addEventListener('change', function() {
-      // Remove and re-add animation class for shape changes
       if (shape) {
         shape.classList.remove('shape-change');
-        // Trigger reflow to restart animation
         void shape.offsetWidth;
         shape.classList.add('shape-change');
       }
     });
   }
   
-  // Add ripple effect to button
   if (checkButton) {
     checkButton.addEventListener('click', function(e) {
-      // Create ripple effect
       let ripple = document.createElement('span');
       ripple.classList.add('ripple');
       this.appendChild(ripple);
-      
-      // Show feedback with animation
-      if (feedback) {
-        feedback.classList.add('visible');
-        
-        // Simulate checking answer (for demo purposes)
-        const isCorrect = Math.random() > 0.5; // Random result for demo
-        
-        feedback.classList.remove('correct', 'incorrect');
-        if (isCorrect) {
-          feedback.classList.add('correct');
-          feedback.textContent = "Correct! Well done!";
-          
-          // Add pulse animation to shape display
-          shapeDisplay.classList.add('pulse-correct');
-          setTimeout(() => {
-            shapeDisplay.classList.remove('pulse-correct');
-          }, 1000);
-        } else {
-          feedback.classList.add('incorrect');
-          feedback.textContent = "Not quite right. Try again!";
-        }
-      }
-      
-      // Remove ripple after animation completes
       setTimeout(() => {
         ripple.remove();
       }, 1000);
     });
   }
   
-  // Add focus animations for input field
   if (answerInput) {
     answerInput.addEventListener('focus', function() {
       this.classList.add('focused');
@@ -660,7 +623,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Hover effects for shape display
   if (shapeDisplay) {
     shapeDisplay.addEventListener('mouseenter', function() {
       if (shape) {
@@ -675,7 +637,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Add slight parallax effect to shape display
   if (shapeDisplay) {
     document.addEventListener('mousemove', function(e) {
       const moveX = (e.clientX - window.innerWidth / 2) / 50;
@@ -685,7 +646,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Initialize dimension labels with staggered animations
   const dimensionLabels = document.querySelectorAll('.dimension-label');
   if (dimensionLabels.length > 0) {
     dimensionLabels.forEach((label, index) => {
@@ -693,11 +653,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Show ripple effect when clicking anywhere in game container
   const gameContainer = document.querySelector('.game-container');
   if (gameContainer) {
     gameContainer.addEventListener('click', function(e) {
-      // Only if not clicking on an interactive element
       if (!e.target.closest('button') &&
         !e.target.closest('select') &&
         !e.target.closest('input')) {
@@ -711,13 +669,11 @@ document.addEventListener('DOMContentLoaded', function() {
         ripple.style.transform = 'scale(1)';
         ripple.style.opacity = '1';
         
-        // Position ripple where clicked
         ripple.style.left = `${e.clientX - this.getBoundingClientRect().left}px`;
         ripple.style.top = `${e.clientY - this.getBoundingClientRect().top}px`;
         
         this.appendChild(ripple);
         
-        // Animate and remove
         ripple.animate([
           { transform: 'scale(1)', opacity: 1 },
           { transform: 'scale(100)', opacity: 0 }

@@ -314,7 +314,7 @@ button:focus:not(:active)::after {
   }
 }
 
-.feedback {
+#feedback {
   text-align: center;
   min-height: 50px;
   font-size: clamp(0.9rem, 2vw, 1.1rem);
@@ -327,18 +327,18 @@ button:focus:not(:active)::after {
   transform: translateY(10px);
 }
 
-.feedback.visible {
+#feedback.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.feedback.correct {
+#feedback.correct {
   color: #10b981;
   background-color: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-.feedback.incorrect {
+#feedback.incorrect {
   color: #ef4444;
   background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -477,7 +477,6 @@ svg:hover {
   }
 }
 
-/* Add subtle entrance animations for elements */
 .game-container {
   animation: fadeIn 0.6s var(--cubic-smooth);
 }
