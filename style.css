@@ -378,9 +378,6 @@ button:focus:not(:active)::after {
   top: 15px;
   left: 15px;
   padding: 8px 16px;
-  border-radius: var(--border-radius-full);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
   z-index: 10;
   transition: all var(--transition-medium) var(--cubic-smooth);
 }
