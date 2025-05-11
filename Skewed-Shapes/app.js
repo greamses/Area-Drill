@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const containerHeight = shapeContainer.clientHeight;
     const centerX = containerWidth/2;
     const centerY = containerHeight/2;
-    const scale = 25;
+    const scale = 15;
     
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
