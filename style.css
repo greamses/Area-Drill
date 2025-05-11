@@ -366,7 +366,6 @@ button:focus:not(:active)::after {
 
 #shapeContainer {
   position: relative;
-  border: 2px solid;
 }
 
 #timerDisplay {
