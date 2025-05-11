@@ -566,3 +566,4 @@ document.addEventListener('DOMContentLoaded', function() {
   
   newQuestion(shapes[0].id);
 });
+
