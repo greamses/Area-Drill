@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
   shapeContainer.appendChild(timerDisplay);
   
   const shapes = [
-    { id: 'rhombus', name: 'Rhombus', params: ['side (s)', 'height (h)', 'diagonals (d1, d2)'] },
+    { id: 'rhombus', name: 'Rhombus', params: ['side (s)', 'diagonals (d1, d2)'] },
     { id: 'kite', name: 'Kite', params: ['short side (a)', 'long side (b)', 'diagonals (d1, d2)'] }
   ];
   
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let questionText = '';
     if (currentQuestion.isReverse) {
-      questionText = `${currentQuestion.type === 'A' ? 'A:' : 'P:'} ${currentQuestion.givenValue}, ${currentQuestion.hiddenParam}`;
+      questionText = `${currentQuestion.type === 'A' ? 'A:' : 'P:'} ${currentQuestion.givenValue.toFixed(0)}, ${currentQuestion.hiddenParam}`;
     } else {
       questionText = `${currentQuestion.type === 'A' ? 'A' : 'P'}`;
     }
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function checkAnswer() {
     clearInterval(timer);
-  
+    
     const userAnswer = parseFloat(userAnswerInput.value);
     if (isNaN(userAnswer)) {
       endGame(`Invalid answer. The correct answer is ${currentQuestion.answer.toFixed(2)}. Game over!`);
@@ -135,28 +135,44 @@ document.addEventListener('DOMContentLoaded', function() {
     switch (shapeId) {
       case 'rhombus': {
         // Generate integer values for the rhombus
-        question.s = getRandomInt(6, 12);  // side length
-        question.h = getRandomInt(5, 10);  // height
+        question.s = getRandomInt(6, 12); // side length
         
-        // Calculate diagonals (using Pythagorean theorem)
-        // For a rhombus with side s and height h:
-        // half-width (w) = √(s² - h²)
-        question.w = Math.sqrt(question.s * question.s - question.h * question.h);
-        question.d1 = 2 * question.h;  // vertical diagonal
-        question.d2 = 2 * question.w;  // horizontal diagonal
+        // Generate diagonals with integer values
+        // Pick from common Pythagorean triples to ensure integer values
+        const rhombusConfigs = [
+          { s: 5, d1: 8, d2: 6 },
+          { s: 6, d1: 6, d2: 8 },
+          { s: 7, d1: 12, d2: 8 },
+          { s: 8, d1: 10, d2: 12 },
+          { s: 9, d1: 12, d2: 12 },
+          { s: 10, d1: 16, d2: 12 },
+          { s: 11, d1: 20, d2: 10 },
+          { s: 12, d1: 16, d2: 16 }
+        ];
+        
+        const config = rhombusConfigs[getRandomInt(0, rhombusConfigs.length - 1)];
+        question.s = config.s;
+        question.d1 = config.d1; // vertical diagonal
+        question.d2 = config.d2; // horizontal diagonal
+        
+        // Calculate height from diagonal (h = d1/2)
+        question.h = question.d1 / 2;
         
         if (question.isReverse) {
           if (question.type === 'A') {
-            if (Math.random() > 0.5) {
-              // Area given, find side
-              question.answer = question.s;
-              question.givenValue = question.s * question.h;
-              question.hiddenParam = 's';
+            const rand = Math.random();
+            if (rand < 0.5) {
+              // Area given, find diagonal d1
+              question.answer = question.d1;
+              question.givenValue = (question.d1 * question.d2) / 2;
+              question.hiddenParam = 'd1';
+              question.visibleDiag = 'd2';
             } else {
-              // Area given, find height
-              question.answer = question.h;
-              question.givenValue = question.s * question.h;
-              question.hiddenParam = 'h';
+              // Area given, find diagonal d2
+              question.answer = question.d2;
+              question.givenValue = (question.d1 * question.d2) / 2;
+              question.hiddenParam = 'd2';
+              question.visibleDiag = 'd1';
             }
           } else {
             // Perimeter given, find side
@@ -166,18 +182,13 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         } else {
           // Calculate area or perimeter directly
-          question.answer = question.type === 'A' ? question.s * question.h : 4 * question.s;
+          question.answer = question.type === 'A' ? (question.d1 * question.d2) / 2 : 4 * question.s;
         }
         break;
       }
       
       case 'kite': {
-        // Generate integer values for the kite
-        question.a = getRandomInt(5, 10);  // shorter side
-        question.b = getRandomInt(question.a + 1, 15);  // longer side
-        
-        // Create a kite with whole number diagonals
-        // Using Pythagorean triples or simple geometry to ensure clean numbers
+        // Use predefined kite configurations with integer values
         const kiteConfigs = [
           { a: 5, b: 8, d1: 8, d2: 12 },
           { a: 6, b: 10, d1: 12, d2: 8 },
@@ -187,29 +198,26 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
         
         const config = kiteConfigs[getRandomInt(0, kiteConfigs.length - 1)];
-        question.a = config.a;
-        question.b = config.b;
-        question.d1 = config.d1;  // vertical diagonal
-        question.d2 = config.d2;  // horizontal diagonal
+        question.a = config.a; // shorter side
+        question.b = config.b; // longer side
+        question.d1 = config.d1; // vertical diagonal
+        question.d2 = config.d2; // horizontal diagonal
         
         if (question.isReverse) {
           if (question.type === 'A') {
             const rand = Math.random();
-            if (rand < 0.33) {
-              // Area given, find shorter side
-              question.answer = question.a;
-              question.givenValue = (question.d1 * question.d2) / 2;
-              question.hiddenParam = 'a';
-            } else if (rand < 0.66) {
-              // Area given, find longer side
-              question.answer = question.b;
-              question.givenValue = (question.d1 * question.d2) / 2;
-              question.hiddenParam = 'b';
-            } else {
-              // Area given, find diagonal
+            if (rand < 0.5) {
+              // Area given, find diagonal d1
               question.answer = question.d1;
               question.givenValue = (question.d1 * question.d2) / 2;
               question.hiddenParam = 'd1';
+              question.visibleDiag = 'd2';
+            } else {
+              // Area given, find diagonal d2
+              question.answer = question.d2;
+              question.givenValue = (question.d1 * question.d2) / 2;
+              question.hiddenParam = 'd2';
+              question.visibleDiag = 'd1';
             }
           } else {
             const rand = Math.random();
@@ -218,11 +226,13 @@ document.addEventListener('DOMContentLoaded', function() {
               question.answer = question.a;
               question.givenValue = 2 * (question.a + question.b);
               question.hiddenParam = 'a';
+              question.visibleSide = 'b';
             } else {
               // Perimeter given, find longer side
               question.answer = question.b;
               question.givenValue = 2 * (question.a + question.b);
               question.hiddenParam = 'b';
+              question.visibleSide = 'a';
             }
           }
         } else {
@@ -255,15 +265,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     switch (question.shape) {
       case 'rhombus': {
-        // Calculate points for rhombus
-        const halfHeight = question.h / 2 * scale;
-        const halfWidth = question.w * scale;
+        // Calculate points for rhombus using diagonals
+        const halfD1 = question.d1 / 2 * scale * 0.6; // Vertical diagonal half-length
+        const halfD2 = question.d2 / 2 * scale * 0.6; // Horizontal diagonal half-length
         
         const points = [
-          [centerX, centerY - halfHeight],           // top
-          [centerX + halfWidth, centerY],            // right
-          [centerX, centerY + halfHeight],           // bottom
-          [centerX - halfWidth, centerY]             // left
+          [centerX, centerY - halfD1], // top
+          [centerX + halfD2, centerY], // right
+          [centerX, centerY + halfD1], // bottom
+          [centerX - halfD2, centerY] // left
         ];
         
         const rhombus = document.createElementNS(svgNS, "polygon");
@@ -276,18 +286,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add diagonals
         const d1Line = document.createElementNS(svgNS, "line");
         d1Line.setAttribute("x1", centerX);
-        d1Line.setAttribute("y1", centerY - halfHeight);
+        d1Line.setAttribute("y1", centerY - halfD1);
         d1Line.setAttribute("x2", centerX);
-        d1Line.setAttribute("y2", centerY + halfHeight);
+        d1Line.setAttribute("y2", centerY + halfD1);
         d1Line.setAttribute("stroke", "#333");
         d1Line.setAttribute("stroke-width", "1.5");
         d1Line.setAttribute("stroke-dasharray", "4,4");
         svg.appendChild(d1Line);
         
         const d2Line = document.createElementNS(svgNS, "line");
-        d2Line.setAttribute("x1", centerX - halfWidth);
+        d2Line.setAttribute("x1", centerX - halfD2);
         d2Line.setAttribute("y1", centerY);
-        d2Line.setAttribute("x2", centerX + halfWidth);
+        d2Line.setAttribute("x2", centerX + halfD2);
         d2Line.setAttribute("y2", centerY);
         d2Line.setAttribute("stroke", "#333");
         d2Line.setAttribute("stroke-width", "1.5");
@@ -296,23 +306,81 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add labels based on the question type
         if (question.isReverse) {
-          if (question.hiddenParam === 's') {
-            // Side is unknown
-            addDimensionLine(svg, centerX, centerY - halfHeight, centerX + halfWidth, centerY, '?', 'right');
-          } else if (question.hiddenParam === 'h') {
-            // Height is unknown
-            addDimensionLine(svg, centerX + 15, centerY - halfHeight, centerX + 15, centerY + halfHeight, '?', 'right');
+          if (question.type === 'A') {
+            // Area given, one diagonal is hidden
+            if (question.hiddenParam === 'd1') {
+              // d1 is unknown, show d2
+              const diagText = document.createElementNS(svgNS, "text");
+              diagText.setAttribute("x", centerX);
+              diagText.setAttribute("y", centerY - halfD1 - 10);
+              diagText.setAttribute("text-anchor", "middle");
+              diagText.setAttribute("font-size", "12");
+              diagText.setAttribute("fill", "#333");
+              diagText.textContent = `d2: ${question.d2}`;
+              svg.appendChild(diagText);
+              
+              // Mark d1 as unknown
+              const d1Text = document.createElementNS(svgNS, "text");
+              d1Text.setAttribute("x", centerX + 5);
+              d1Text.setAttribute("y", centerY);
+              d1Text.setAttribute("text-anchor", "start");
+              d1Text.setAttribute("font-size", "12");
+              d1Text.setAttribute("fill", "#333");
+              d1Text.textContent = `d1: ?`;
+              svg.appendChild(d1Text);
+            } else if (question.hiddenParam === 'd2') {
+              // d2 is unknown, show d1
+              const diagText = document.createElementNS(svgNS, "text");
+              diagText.setAttribute("x", centerX + 5);
+              diagText.setAttribute("y", centerY);
+              diagText.setAttribute("text-anchor", "start");
+              diagText.setAttribute("font-size", "12");
+              diagText.setAttribute("fill", "#333");
+              diagText.textContent = `d1: ${question.d1}`;
+              svg.appendChild(diagText);
+              
+              // Mark d2 as unknown
+              const d2Text = document.createElementNS(svgNS, "text");
+              d2Text.setAttribute("x", centerX);
+              d2Text.setAttribute("y", centerY - halfD1 - 10);
+              d2Text.setAttribute("text-anchor", "middle");
+              d2Text.setAttribute("font-size", "12");
+              d2Text.setAttribute("fill", "#333");
+              d2Text.textContent = `d2: ?`;
+              svg.appendChild(d2Text);
+            }
+            
+            // Always show side for reference
+            addDimensionLine(svg, centerX, centerY - halfD1, centerX + halfD2, centerY, `${question.s}`, 'right');
           } else {
-            // Default case - both shown
-            addDimensionLine(svg, centerX, centerY - halfHeight, centerX + halfWidth, centerY, `${question.s}`, 'right');
-            addDimensionLine(svg, centerX + 15, centerY - halfHeight, centerX + 15, centerY + halfHeight, `${question.h}`, 'right');
+            // Perimeter is given, side is unknown
+            addDimensionLine(svg, centerX, centerY - halfD1, centerX + halfD2, centerY, '?', 'right');
+            
+            // Show diagonals for reference
+            const diagText1 = document.createElementNS(svgNS, "text");
+            diagText1.setAttribute("x", centerX + 5);
+            diagText1.setAttribute("y", centerY);
+            diagText1.setAttribute("text-anchor", "start");
+            diagText1.setAttribute("font-size", "12");
+            diagText1.setAttribute("fill", "#333");
+            diagText1.textContent = `d1: ${question.d1}`;
+            svg.appendChild(diagText1);
+            
+            const diagText2 = document.createElementNS(svgNS, "text");
+            diagText2.setAttribute("x", centerX);
+            diagText2.setAttribute("y", centerY - halfD1 - 10);
+            diagText2.setAttribute("text-anchor", "middle");
+            diagText2.setAttribute("font-size", "12");
+            diagText2.setAttribute("fill", "#333");
+            diagText2.textContent = `d2: ${question.d2}`;
+            svg.appendChild(diagText2);
           }
         } else {
-          // Show both dimensions
-          addDimensionLine(svg, centerX, centerY - halfHeight, centerX + halfWidth, centerY, `${question.s}`, 'right');
-          addDimensionLine(svg, centerX + 15, centerY - halfHeight, centerX + 15, centerY + halfHeight, `${question.h}`, 'right');
+          // Normal question - show all information
+          // Show side length
+          addDimensionLine(svg, centerX, centerY - halfD1, centerX + halfD2, centerY, `${question.s}`, 'right');
           
-          // Optionally add diagonal dimensions
+          // Show diagonals
           const diagText1 = document.createElementNS(svgNS, "text");
           diagText1.setAttribute("x", centerX + 5);
           diagText1.setAttribute("y", centerY);
@@ -324,26 +392,26 @@ document.addEventListener('DOMContentLoaded', function() {
           
           const diagText2 = document.createElementNS(svgNS, "text");
           diagText2.setAttribute("x", centerX);
-          diagText2.setAttribute("y", centerY - halfHeight - 10);
+          diagText2.setAttribute("y", centerY - halfD1 - 10);
           diagText2.setAttribute("text-anchor", "middle");
           diagText2.setAttribute("font-size", "12");
           diagText2.setAttribute("fill", "#333");
-          diagText2.textContent = `d2: ${question.d2.toFixed(2)}`;
+          diagText2.textContent = `d2: ${question.d2}`;
           svg.appendChild(diagText2);
         }
         break;
       }
       
       case 'kite': {
-        // Calculate points for kite
-        const d1Half = question.d1 / 2 * scale * 0.8;  // Vertical diagonal half-length
-        const d2Half = question.d2 / 2 * scale * 0.8;  // Horizontal diagonal half-length
+        // Calculate points for kite using diagonals
+        const d1Half = question.d1 / 2 * scale * 0.6; // Vertical diagonal half-length
+        const d2Half = question.d2 / 2 * scale * 0.6; // Horizontal diagonal half-length
         
         const points = [
-          [centerX, centerY - d1Half],              // top
-          [centerX + d2Half, centerY],              // right
-          [centerX, centerY + d1Half],              // bottom
-          [centerX - d2Half, centerY]               // left
+          [centerX, centerY - d1Half], // top
+          [centerX + d2Half, centerY], // right
+          [centerX, centerY + d1Half], // bottom
+          [centerX - d2Half, centerY] // left
         ];
         
         const kite = document.createElementNS(svgNS, "polygon");
@@ -376,38 +444,95 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add labels based on the question type
         if (question.isReverse) {
-          if (question.hiddenParam === 'a') {
-            // Short side is unknown
-            addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, '?', 'left');
-            addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, `${question.b}`, 'right');
-          } else if (question.hiddenParam === 'b') {
-            // Long side is unknown
-            addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, `${question.a}`, 'left');
-            addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, '?', 'right');
-          } else if (question.hiddenParam === 'd1') {
-            // Vertical diagonal is unknown
-            const diagText = document.createElementNS(svgNS, "text");
-            diagText.setAttribute("x", centerX + 5);
-            diagText.setAttribute("y", centerY);
-            diagText.setAttribute("text-anchor", "start");
-            diagText.setAttribute("font-size", "12");
-            diagText.setAttribute("fill", "#333");
-            diagText.textContent = `d1: ?`;
-            svg.appendChild(diagText);
-            
-            addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, `${question.a}`, 'left');
-            addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, `${question.b}`, 'right');
+          if (question.type === 'A') {
+            // Area given, one diagonal is hidden
+            if (question.hiddenParam === 'd1') {
+              // d1 is unknown, show d2
+              const diagText = document.createElementNS(svgNS, "text");
+              diagText.setAttribute("x", centerX);
+              diagText.setAttribute("y", centerY - d1Half - 10);
+              diagText.setAttribute("text-anchor", "middle");
+              diagText.setAttribute("font-size", "12");
+              diagText.setAttribute("fill", "#333");
+              diagText.textContent = `d2: ${question.d2}`;
+              svg.appendChild(diagText);
+              
+              // Mark d1 as unknown
+              const d1Text = document.createElementNS(svgNS, "text");
+              d1Text.setAttribute("x", centerX + 5);
+              d1Text.setAttribute("y", centerY);
+              d1Text.setAttribute("text-anchor", "start");
+              d1Text.setAttribute("font-size", "12");
+              d1Text.setAttribute("fill", "#333");
+              d1Text.textContent = `d1: ?`;
+              svg.appendChild(d1Text);
+              
+              // Show both sides
+              addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, `${question.a}`, 'left');
+              addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, `${question.b}`, 'right');
+            } else if (question.hiddenParam === 'd2') {
+              // d2 is unknown, show d1
+              const diagText = document.createElementNS(svgNS, "text");
+              diagText.setAttribute("x", centerX + 5);
+              diagText.setAttribute("y", centerY);
+              diagText.setAttribute("text-anchor", "start");
+              diagText.setAttribute("font-size", "12");
+              diagText.setAttribute("fill", "#333");
+              diagText.textContent = `d1: ${question.d1}`;
+              svg.appendChild(diagText);
+              
+              // Mark d2 as unknown
+              const d2Text = document.createElementNS(svgNS, "text");
+              d2Text.setAttribute("x", centerX);
+              d2Text.setAttribute("y", centerY - d1Half - 10);
+              d2Text.setAttribute("text-anchor", "middle");
+              d2Text.setAttribute("font-size", "12");
+              d2Text.setAttribute("fill", "#333");
+              d2Text.textContent = `d2: ?`;
+              svg.appendChild(d2Text);
+              
+              // Show both sides
+              addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, `${question.a}`, 'left');
+              addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, `${question.b}`, 'right');
+            }
           } else {
-            // Default case - show sides but not diagonals
-            addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, `${question.a}`, 'left');
-            addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, `${question.b}`, 'right');
+            // Perimeter is given, one side is hidden
+            if (question.hiddenParam === 'a') {
+              // Short side is unknown
+              addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, '?', 'left');
+              addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, `${question.b}`, 'right');
+            } else if (question.hiddenParam === 'b') {
+              // Long side is unknown
+              addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, `${question.a}`, 'left');
+              addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, '?', 'right');
+            }
+            
+            // Show diagonals for reference
+            const diagText1 = document.createElementNS(svgNS, "text");
+            diagText1.setAttribute("x", centerX + 5);
+            diagText1.setAttribute("y", centerY);
+            diagText1.setAttribute("text-anchor", "start");
+            diagText1.setAttribute("font-size", "12");
+            diagText1.setAttribute("fill", "#333");
+            diagText1.textContent = `d1: ${question.d1}`;
+            svg.appendChild(diagText1);
+            
+            const diagText2 = document.createElementNS(svgNS, "text");
+            diagText2.setAttribute("x", centerX);
+            diagText2.setAttribute("y", centerY - d1Half - 10);
+            diagText2.setAttribute("text-anchor", "middle");
+            diagText2.setAttribute("font-size", "12");
+            diagText2.setAttribute("fill", "#333");
+            diagText2.textContent = `d2: ${question.d2}`;
+            svg.appendChild(diagText2);
           }
         } else {
+          // Normal question - show all information
           // Show both sides
           addDimensionLine(svg, centerX, centerY - d1Half, centerX - d2Half, centerY, `${question.a}`, 'left');
           addDimensionLine(svg, centerX, centerY - d1Half, centerX + d2Half, centerY, `${question.b}`, 'right');
           
-          // Add diagonal dimensions
+          // Show diagonals
           const diagText1 = document.createElementNS(svgNS, "text");
           diagText1.setAttribute("x", centerX + 5);
           diagText1.setAttribute("y", centerY);
@@ -500,7 +625,8 @@ document.addEventListener('DOMContentLoaded', function() {
       textElement.setAttribute("y", (y1 + y2) / 2 - 10);
       textElement.setAttribute("text-anchor", "middle");
       textElement.setAttribute("dominant-baseline", "middle");
-    } else if (position === 'right') {
+    } else if (position === 'right')
+    {
       textElement.setAttribute("x", (x1 + x2) / 2 + 10);
       textElement.setAttribute("y", (y1 + y2) / 2 - 10);
       textElement.setAttribute("text-anchor", "middle");

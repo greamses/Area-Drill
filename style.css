@@ -396,7 +396,6 @@ svg:hover {
   transform: scale(1.05);
 }
 
-/* Add this animation for shape changes */
 @keyframes shapeChangePop {
   0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; }
   50% { transform: translate(-50%, -50%) scale(1.1); }
@@ -407,7 +406,6 @@ svg:hover {
   animation: shapeChangePop var(--transition-medium) var(--cubic-bounce);
 }
 
-/* Add this animation for correct answers */
 @keyframes correctPulse {
   0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
   70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
@@ -418,7 +416,6 @@ svg:hover {
   animation: correctPulse 1s var(--cubic-smooth);
 }
 
-/* Media queries with improved layouts */
 @media (max-width: 768px) {
   .game-container {
     padding: var(--spacing-md);
