@@ -130,134 +130,146 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   function generateQuestion(shapeId) {
-    let question = { shape: shapeId };
-    const calculationTypes = ['normal'];
-    
-    question.calculationType = calculationTypes[Math.floor(Math.random() * calculationTypes.length)];
-    question.isReverse = question.calculationType === 'normal' ? Math.random() > 0.5 : true;
-    question.type = Math.random() > 0.5 ? 'A' : 'P';
-    
-    switch (shapeId) {
-      case 'trapezium':
-        question.a = getRandomInt(5, 12); // Shorter parallel side
-        question.b = getRandomInt(question.a + 2, question.a + 8); // Longer parallel side
-        question.h = getRandomInt(4, 10); // Height
-        
-        const sideWidth = (question.b - question.a) / 2;
-        // Calculate both non-parallel sides explicitly (they might be different)
-        question.s1 = Math.sqrt(question.h * question.h + sideWidth * sideWidth);
-        question.s2 = question.s1; // In this implementation, both sides are equal
-        
-        if (question.isReverse) {
-          if (question.type === 'A') {
-            const choice = Math.random();
-            if (choice < 0.33) {
-              question.answer = question.a;
-              question.hiddenParam = 'a';
-            } else if (choice < 0.67) {
-              question.answer = question.b;
-              question.hiddenParam = 'b';
-            } else {
-              question.answer = question.h;
-              question.hiddenParam = 'h';
-            }
-            question.givenValue = 0.5 * (question.a + question.b) * question.h;
+  let question = { shape: shapeId };
+  const calculationTypes = ['normal'];
+  
+  question.calculationType = calculationTypes[Math.floor(Math.random() * calculationTypes.length)];
+  question.isReverse = question.calculationType === 'normal' ? Math.random() > 0.5 : true;
+  question.type = Math.random() > 0.5 ? 'A' : 'P';
+  
+  switch (shapeId) {
+    case 'trapezium':
+      question.a = getRandomInt(5, 12); // Shorter parallel side
+      question.b = getRandomInt(question.a + 2, question.a + 8); // Longer parallel side
+      question.h = getRandomInt(4, 10); // Height
+      
+      const sideWidth = (question.b - question.a) / 2;
+      // Calculate both non-parallel sides as integers
+      question.s1 = Math.round(Math.sqrt(question.h * question.h + sideWidth * sideWidth));
+      question.s2 = question.s1; // Make both sides equal
+      
+      if (question.isReverse) {
+        if (question.type === 'A') {
+          // For area reverse questions, hide one parameter
+          const choice = Math.random();
+          if (choice < 0.33) {
+            question.answer = question.a;
+            question.hiddenParam = 'a';
+            question.shownParams = ['b', 'h'];
+          } else if (choice < 0.67) {
+            question.answer = question.b;
+            question.hiddenParam = 'b';
+            question.shownParams = ['a', 'h'];
           } else {
-            const choice = Math.random();
-            if (choice < 0.33) {
-              question.answer = question.a;
-              question.hiddenParam = 'a';
-            } else if (choice < 0.67) {
-              question.answer = question.b;
-              question.hiddenParam = 'b';
-            } else {
-              question.answer = question.s1;
-              question.hiddenParam = 's';
-            }
-            question.givenValue = question.a + question.b + question.s1 + question.s2;
+            question.answer = question.h;
+            question.hiddenParam = 'h';
+            question.shownParams = ['a', 'b'];
           }
+          question.givenValue = 0.5 * (question.a + question.b) * question.h;
         } else {
-          question.answer = question.type === 'A' ? 
-            0.5 * (question.a + question.b) * question.h : 
-            question.a + question.b + question.s1 + question.s2;
+          // For perimeter reverse questions, we must show all sides
+          // So we'll ask to calculate perimeter from all sides (no hidden params)
+          question.answer = question.a + question.b + question.s1 + question.s2;
+          question.hiddenParam = null;
+          question.shownParams = ['a', 'b', 's1', 's2'];
+          question.givenValue = null; // Not needed for forward perimeter questions
         }
-        break;
-        
-      case 'parallelogram':
-        question.b = getRandomInt(6, 12); // Base
-        question.h = getRandomInt(4, 10); // Height
-        
-        const angle = Math.PI / 6;
-        question.s = question.h / Math.sin(angle);
-        
-        if (question.isReverse) {
-          if (question.type === 'A') {
-            if (Math.random() > 0.5) {
-              question.answer = question.b;
-              question.hiddenParam = 'b';
-            } else {
-              question.answer = question.h;
-              question.hiddenParam = 'h';
-            }
-            question.givenValue = question.b * question.h;
+      } else {
+        // Forward questions
+        if (question.type === 'A') {
+          question.answer = 0.5 * (question.a + question.b) * question.h;
+          // For area, show all parameters
+          question.shownParams = ['a', 'b', 'h'];
+        } else {
+          question.answer = question.a + question.b + question.s1 + question.s2;
+          // For perimeter, show all sides
+          question.shownParams = ['a', 'b', 's1', 's2'];
+        }
+      }
+      break;
+      
+    case 'parallelogram':
+      question.b = getRandomInt(6, 12); // Base
+      question.h = getRandomInt(4, 10); // Height
+      question.s = getRandomInt(Math.max(4, question.b - 3), question.b + 3); // Side
+      
+      if (question.isReverse) {
+        if (question.type === 'A') {
+          // For area reverse questions
+          if (Math.random() > 0.5) {
+            question.answer = question.b;
+            question.hiddenParam = 'b';
+            question.shownParams = ['h'];
           } else {
-            if (Math.random() > 0.5) {
-              question.answer = question.b;
-              question.hiddenParam = 'b';
-            } else {
-              question.answer = question.s;
-              question.hiddenParam = 's';
-            }
-            question.givenValue = 2 * (question.b + question.s);
+            question.answer = question.h;
+            question.hiddenParam = 'h';
+            question.shownParams = ['b'];
           }
+          question.givenValue = question.b * question.h;
         } else {
-          question.answer = question.type === 'A' ? question.b * question.h : 2 * (question.b + question.s);
+          // For perimeter reverse questions, show both sides
+          question.answer = 2 * (question.b + question.s);
+          question.hiddenParam = null;
+          question.shownParams = ['b', 's'];
+          question.givenValue = null;
         }
-        break;
-    }
-    
-    return question;
+      } else {
+        // Forward questions
+        if (question.type === 'A') {
+          question.answer = question.b * question.h;
+          question.shownParams = ['b', 'h'];
+        } else {
+          question.answer = 2 * (question.b + question.s);
+          // For perimeter, show both sides
+          question.shownParams = ['b', 's'];
+        }
+      }
+      break;
   }
   
-  function drawShapeWithSVG(question) {
-    labelsContainer.innerHTML = '';
-    shapeElement.innerHTML = '';
-    
-    const containerWidth = shapeContainer.clientWidth;
-    const containerHeight = shapeContainer.clientHeight;
-    const centerX = containerWidth / 2;
-    const centerY = containerHeight / 2;
-    const scale = 15;
-    
-    const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("height", "100%");
-    svg.setAttribute("viewBox", `0 0 ${containerWidth} ${containerHeight}`);
-    svg.style.display = "block";
-    
-    switch (question.shape) {
-      case 'trapezium': {
-        let topWidth = question.a * scale;
-        let bottomWidth = question.b * scale;
-        let height = question.h * scale;
-        
-        const topLeft = { x: centerX - topWidth / 2, y: centerY - height / 2 };
-        const topRight = { x: centerX + topWidth / 2, y: centerY - height / 2 };
-        const bottomLeft = { x: centerX - bottomWidth / 2, y: centerY + height / 2 };
-        const bottomRight = { x: centerX + bottomWidth / 2, y: centerY + height / 2 };
-        
-        const trapezium = document.createElementNS(svgNS, "path");
-        trapezium.setAttribute("d", `M ${topLeft.x} ${topLeft.y} 
+  return question;
+}
+
+function drawShapeWithSVG(question) {
+  labelsContainer.innerHTML = '';
+  shapeElement.innerHTML = '';
+  
+  const containerWidth = shapeContainer.clientWidth;
+  const containerHeight = shapeContainer.clientHeight;
+  const centerX = containerWidth / 2;
+  const centerY = containerHeight / 2;
+  const scale = 15;
+  
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+  svg.setAttribute("viewBox", `0 0 ${containerWidth} ${containerHeight}`);
+  svg.style.display = "block";
+  
+  switch (question.shape) {
+    case 'trapezium': {
+      let topWidth = question.a * scale;
+      let bottomWidth = question.b * scale;
+      let height = question.h * scale;
+      
+      const topLeft = { x: centerX - topWidth / 2, y: centerY - height / 2 };
+      const topRight = { x: centerX + topWidth / 2, y: centerY - height / 2 };
+      const bottomLeft = { x: centerX - bottomWidth / 2, y: centerY + height / 2 };
+      const bottomRight = { x: centerX + bottomWidth / 2, y: centerY + height / 2 };
+      
+      const trapezium = document.createElementNS(svgNS, "path");
+      trapezium.setAttribute("d", `M ${topLeft.x} ${topLeft.y} 
                                   L ${topRight.x} ${topRight.y} 
                                   L ${bottomRight.x} ${bottomRight.y} 
                                   L ${bottomLeft.x} ${bottomLeft.y} Z`);
-        trapezium.setAttribute("fill", "#4CAF5099");
-        trapezium.setAttribute("stroke", "#333");
-        trapezium.setAttribute("stroke-width", "2");
-        svg.appendChild(trapezium);
-        
-        // Height line
+      trapezium.setAttribute("fill", "#4CAF5099");
+      trapezium.setAttribute("stroke", "#333");
+      trapezium.setAttribute("stroke-width", "2");
+      svg.appendChild(trapezium);
+      
+      // Show height only for area questions if it's shown
+      if (question.type === 'A' && question.shownParams.includes('h')) {
         const heightLine = document.createElementNS(svgNS, "line");
         heightLine.setAttribute("x1", centerX);
         heightLine.setAttribute("y1", centerY - height / 2);
@@ -267,57 +279,58 @@ document.addEventListener('DOMContentLoaded', function() {
         heightLine.setAttribute("stroke-width", "1.5");
         heightLine.setAttribute("stroke-dasharray", "4,4");
         svg.appendChild(heightLine);
-        
-        // Add dimension lines for sides
-        addDimensionLine(svg, topLeft.x, topLeft.y - 10,
-          topRight.x, topRight.y - 10,
-          `${question.a}`, 'top');
-        
-        addDimensionLine(svg, bottomLeft.x, bottomLeft.y + 10,
-          bottomRight.x, bottomRight.y + 10,
-          `${question.b}`, 'bottom');
-        
         addDimensionLine(svg, centerX - bottomWidth / 2 - 10, centerY - height / 2,
           centerX - bottomWidth / 2 - 10, centerY + height / 2,
           `${question.h}`, 'left');
-        
-        // Add labels for non-parallel sides if calculating perimeter
-        if (question.type === 'P') {
-          // Left non-parallel side
-          addDimensionLine(svg, topLeft.x - 10, topLeft.y,
-            bottomLeft.x - 10, bottomLeft.y,
-            `${question.s1.toFixed(1)}`, 'left');
-          
-          // Right non-parallel side
-          addDimensionLine(svg, topRight.x + 10, topRight.y,
-            bottomRight.x + 10, bottomRight.y,
-            `${question.s2.toFixed(1)}`, 'right');
-        }
-        
-        break;
       }
       
-      case 'parallelogram': {
-        let width = question.b * scale;
-        let height = question.h * scale;
-        const skew = width / 4; // Create a consistent parallelogram shape
-        
-        const topLeft = { x: centerX - width / 2 + skew, y: centerY - height / 2 };
-        const topRight = { x: centerX + width / 2 + skew, y: centerY - height / 2 };
-        const bottomLeft = { x: centerX - width / 2, y: centerY + height / 2 };
-        const bottomRight = { x: centerX + width / 2, y: centerY + height / 2 };
-        
-        const parallelogram = document.createElementNS(svgNS, "path");
-        parallelogram.setAttribute("d", `M ${topLeft.x} ${topLeft.y} 
+      // Always show all sides for perimeter, or shown sides for area
+      addDimensionLine(svg, topLeft.x, topLeft.y - 10,
+        topRight.x, topRight.y - 10,
+        question.shownParams.includes('a') ? `${question.a}` : '?', 'top');
+      
+      addDimensionLine(svg, bottomLeft.x, bottomLeft.y + 10,
+        bottomRight.x, bottomRight.y + 10,
+        question.shownParams.includes('b') ? `${question.b}` : '?', 'bottom');
+      
+      // For perimeter or when sides are shown
+      if (question.type === 'P' || question.shownParams.includes('s1')) {
+        addDimensionLine(svg, topLeft.x - 10, topLeft.y,
+          bottomLeft.x - 10, bottomLeft.y,
+          question.shownParams.includes('s1') ? `${question.s1}` : '?', 'left');
+      }
+      
+      if (question.type === 'P' || question.shownParams.includes('s2')) {
+        addDimensionLine(svg, topRight.x + 10, topRight.y,
+          bottomRight.x + 10, bottomRight.y,
+          question.shownParams.includes('s2') ? `${question.s2}` : '?', 'right');
+      }
+      
+      break;
+    }
+    
+    case 'parallelogram': {
+      let width = question.b * scale;
+      let height = question.h * scale;
+      const skew = width / 4;
+      
+      const topLeft = { x: centerX - width / 2 + skew, y: centerY - height / 2 };
+      const topRight = { x: centerX + width / 2 + skew, y: centerY - height / 2 };
+      const bottomLeft = { x: centerX - width / 2, y: centerY + height / 2 };
+      const bottomRight = { x: centerX + width / 2, y: centerY + height / 2 };
+      
+      const parallelogram = document.createElementNS(svgNS, "path");
+      parallelogram.setAttribute("d", `M ${topLeft.x} ${topLeft.y} 
                                      L ${topRight.x} ${topRight.y} 
                                      L ${bottomRight.x} ${bottomRight.y} 
                                      L ${bottomLeft.x} ${bottomLeft.y} Z`);
-        parallelogram.setAttribute("fill", "#2196F399");
-        parallelogram.setAttribute("stroke", "#333");
-        parallelogram.setAttribute("stroke-width", "2");
-        svg.appendChild(parallelogram);
-        
-        // Height line
+      parallelogram.setAttribute("fill", "#2196F399");
+      parallelogram.setAttribute("stroke", "#333");
+      parallelogram.setAttribute("stroke-width", "2");
+      svg.appendChild(parallelogram);
+      
+      // Show height only for area questions if shown
+      if (question.type === 'A' && question.shownParams.includes('h')) {
         const heightLine = document.createElementNS(svgNS, "line");
         heightLine.setAttribute("x1", centerX - width / 2 + skew / 2);
         heightLine.setAttribute("y1", centerY - height / 2);
@@ -327,27 +340,29 @@ document.addEventListener('DOMContentLoaded', function() {
         heightLine.setAttribute("stroke-width", "1.5");
         heightLine.setAttribute("stroke-dasharray", "4,4");
         svg.appendChild(heightLine);
-        
-        addDimensionLine(svg, bottomLeft.x, bottomLeft.y + 10,
-          bottomRight.x, bottomRight.y + 10,
-          `${question.b}`, 'bottom');
-        
         addDimensionLine(svg, bottomLeft.x - 10, bottomLeft.y,
           bottomLeft.x - 10 + skew, topLeft.y,
           `${question.h}`, 'left');
-        
-        if (question.type === 'P') {
-          addDimensionLine(svg, topLeft.x, topLeft.y - 10,
-            bottomLeft.x, bottomLeft.y - 10,
-            `${question.s.toFixed(1)}`, 'left');
-        }
-        
-        break;
       }
+      
+      // Show base
+      addDimensionLine(svg, bottomLeft.x, bottomLeft.y + 10,
+        bottomRight.x, bottomRight.y + 10,
+        question.shownParams.includes('b') ? `${question.b}` : '?', 'bottom');
+      
+      // Show side if it's shown or if it's a perimeter question
+      if (question.shownParams.includes('s') || question.type === 'P') {
+        addDimensionLine(svg, topLeft.x, topLeft.y - 10,
+          bottomLeft.x, bottomLeft.y - 10,
+          question.shownParams.includes('s') ? `${question.s}` : '?', 'left');
+      }
+      
+      break;
     }
-    
-    shapeElement.appendChild(svg);
   }
+  
+  shapeElement.appendChild(svg);
+}
   
   function addDimensionLine(svg, x1, y1, x2, y2, text, position) {
     const svgNS = "http://www.w3.org/2000/svg";
@@ -448,3 +463,4 @@ document.addEventListener('DOMContentLoaded', function() {
   
   newQuestion(shapes[0].id);
 });
+
