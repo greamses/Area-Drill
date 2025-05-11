@@ -252,9 +252,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const containerWidth = shapeContainer.clientWidth;
     const containerHeight = shapeContainer.clientHeight;
-    const centerX = containerWidth / 2;
-    const centerY = containerHeight / 2;
-    const scale = 12;
+    const centerX = containerWidth/2;
+    const centerY = containerHeight/2;
+    const scale = 25;
     
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
@@ -265,9 +265,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     switch (question.shape) {
       case 'rhombus': {
-        // Calculate points for rhombus using diagonals
-        const halfD1 = question.d1 / 2 * scale * 0.6; // Vertical diagonal half-length
-        const halfD2 = question.d2 / 2 * scale * 0.6; // Horizontal diagonal half-length
+        const halfD1 = question.d1 / 2 * scale * 0.6; 
+        const halfD2 = question.d2 / 2 * scale * 0.6; 
         
         const points = [
           [centerX, centerY - halfD1], // top
@@ -314,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
               diagText.setAttribute("x", centerX);
               diagText.setAttribute("y", centerY - halfD1 - 10);
               diagText.setAttribute("text-anchor", "middle");
-              diagText.setAttribute("font-size", "12");
+              diagText.setAttribute("font-size", "18");
               diagText.setAttribute("fill", "#333");
               diagText.textContent = `d2: ${question.d2}`;
               svg.appendChild(diagText);
@@ -324,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
               d1Text.setAttribute("x", centerX + 5);
               d1Text.setAttribute("y", centerY);
               d1Text.setAttribute("text-anchor", "start");
-              d1Text.setAttribute("font-size", "12");
+              d1Text.setAttribute("font-size", "18");
               d1Text.setAttribute("fill", "#333");
               d1Text.textContent = `d1: ?`;
               svg.appendChild(d1Text);
@@ -334,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
               diagText.setAttribute("x", centerX + 5);
               diagText.setAttribute("y", centerY);
               diagText.setAttribute("text-anchor", "start");
-              diagText.setAttribute("font-size", "12");
+              diagText.setAttribute("font-size", "18");
               diagText.setAttribute("fill", "#333");
               diagText.textContent = `d1: ${question.d1}`;
               svg.appendChild(diagText);
@@ -344,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
               d2Text.setAttribute("x", centerX);
               d2Text.setAttribute("y", centerY - halfD1 - 10);
               d2Text.setAttribute("text-anchor", "middle");
-              d2Text.setAttribute("font-size", "12");
+              d2Text.setAttribute("font-size", "18");
               d2Text.setAttribute("fill", "#333");
               d2Text.textContent = `d2: ?`;
               svg.appendChild(d2Text);
@@ -361,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
             diagText1.setAttribute("x", centerX + 5);
             diagText1.setAttribute("y", centerY);
             diagText1.setAttribute("text-anchor", "start");
-            diagText1.setAttribute("font-size", "12");
+            diagText1.setAttribute("font-size", "18");
             diagText1.setAttribute("fill", "#333");
             diagText1.textContent = `d1: ${question.d1}`;
             svg.appendChild(diagText1);
@@ -370,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
             diagText2.setAttribute("x", centerX);
             diagText2.setAttribute("y", centerY - halfD1 - 10);
             diagText2.setAttribute("text-anchor", "middle");
-            diagText2.setAttribute("font-size", "12");
+            diagText2.setAttribute("font-size", "18");
             diagText2.setAttribute("fill", "#333");
             diagText2.textContent = `d2: ${question.d2}`;
             svg.appendChild(diagText2);
@@ -385,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
           diagText1.setAttribute("x", centerX + 5);
           diagText1.setAttribute("y", centerY);
           diagText1.setAttribute("text-anchor", "start");
-          diagText1.setAttribute("font-size", "12");
+          diagText1.setAttribute("font-size", "18");
           diagText1.setAttribute("fill", "#333");
           diagText1.textContent = `d1: ${question.d1}`;
           svg.appendChild(diagText1);
@@ -394,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
           diagText2.setAttribute("x", centerX);
           diagText2.setAttribute("y", centerY - halfD1 - 10);
           diagText2.setAttribute("text-anchor", "middle");
-          diagText2.setAttribute("font-size", "12");
+          diagText2.setAttribute("font-size", "18");
           diagText2.setAttribute("fill", "#333");
           diagText2.textContent = `d2: ${question.d2}`;
           svg.appendChild(diagText2);
@@ -403,9 +402,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       case 'kite': {
-        // Calculate points for kite using diagonals
-        const d1Half = question.d1 / 2 * scale * 0.6; // Vertical diagonal half-length
-        const d2Half = question.d2 / 2 * scale * 0.6; // Horizontal diagonal half-length
+        const d1Half = question.d1 / 2 * scale * 0.6; 
+        const d2Half = question.d2 / 2 * scale * 0.6; 
         
         const points = [
           [centerX, centerY - d1Half], // top
@@ -452,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
               diagText.setAttribute("x", centerX);
               diagText.setAttribute("y", centerY - d1Half - 10);
               diagText.setAttribute("text-anchor", "middle");
-              diagText.setAttribute("font-size", "12");
+              diagText.setAttribute("font-size", "18");
               diagText.setAttribute("fill", "#333");
               diagText.textContent = `d2: ${question.d2}`;
               svg.appendChild(diagText);
@@ -462,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
               d1Text.setAttribute("x", centerX + 5);
               d1Text.setAttribute("y", centerY);
               d1Text.setAttribute("text-anchor", "start");
-              d1Text.setAttribute("font-size", "12");
+              d1Text.setAttribute("font-size", "18");
               d1Text.setAttribute("fill", "#333");
               d1Text.textContent = `d1: ?`;
               svg.appendChild(d1Text);
@@ -476,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
               diagText.setAttribute("x", centerX + 5);
               diagText.setAttribute("y", centerY);
               diagText.setAttribute("text-anchor", "start");
-              diagText.setAttribute("font-size", "12");
+              diagText.setAttribute("font-size", "18");
               diagText.setAttribute("fill", "#333");
               diagText.textContent = `d1: ${question.d1}`;
               svg.appendChild(diagText);
@@ -486,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
               d2Text.setAttribute("x", centerX);
               d2Text.setAttribute("y", centerY - d1Half - 10);
               d2Text.setAttribute("text-anchor", "middle");
-              d2Text.setAttribute("font-size", "12");
+              d2Text.setAttribute("font-size", "18");
               d2Text.setAttribute("fill", "#333");
               d2Text.textContent = `d2: ?`;
               svg.appendChild(d2Text);
@@ -512,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
             diagText1.setAttribute("x", centerX + 5);
             diagText1.setAttribute("y", centerY);
             diagText1.setAttribute("text-anchor", "start");
-            diagText1.setAttribute("font-size", "12");
+            diagText1.setAttribute("font-size", "18");
             diagText1.setAttribute("fill", "#333");
             diagText1.textContent = `d1: ${question.d1}`;
             svg.appendChild(diagText1);
@@ -521,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
             diagText2.setAttribute("x", centerX);
             diagText2.setAttribute("y", centerY - d1Half - 10);
             diagText2.setAttribute("text-anchor", "middle");
-            diagText2.setAttribute("font-size", "12");
+            diagText2.setAttribute("font-size", "18");
             diagText2.setAttribute("fill", "#333");
             diagText2.textContent = `d2: ${question.d2}`;
             svg.appendChild(diagText2);
@@ -537,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
           diagText1.setAttribute("x", centerX + 5);
           diagText1.setAttribute("y", centerY);
           diagText1.setAttribute("text-anchor", "start");
-          diagText1.setAttribute("font-size", "12");
+          diagText1.setAttribute("font-size", "18");
           diagText1.setAttribute("fill", "#333");
           diagText1.textContent = `d1: ${question.d1}`;
           svg.appendChild(diagText1);
@@ -546,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
           diagText2.setAttribute("x", centerX);
           diagText2.setAttribute("y", centerY - d1Half - 10);
           diagText2.setAttribute("text-anchor", "middle");
-          diagText2.setAttribute("font-size", "12");
+          diagText2.setAttribute("font-size", "18");
           diagText2.setAttribute("fill", "#333");
           diagText2.textContent = `d2: ${question.d2}`;
           svg.appendChild(diagText2);

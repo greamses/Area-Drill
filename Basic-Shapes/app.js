@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const containerHeight = shapeContainer.clientHeight;
     const centerX = containerWidth / 2;
     const centerY = containerHeight / 2;
-    const scale = 15;
+    const scale = 18;
     
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
@@ -389,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
           diagText.setAttribute("x", centerX);
           diagText.setAttribute("y", centerY - 5);
           diagText.setAttribute("text-anchor", "middle");
-          diagText.setAttribute("font-size", "14");
+          diagText.setAttribute("font-size", "18");
           diagText.setAttribute("fill", "#333");
           diagText.textContent = `d = ${question.d.toFixed(2)}`;
           svg.appendChild(diagText);
@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
       textElement.setAttribute("dominant-baseline", "middle");
     }
     
-    textElement.setAttribute("font-size", "14");
+    textElement.setAttribute("font-size", "18");
     textElement.setAttribute("fill", "#333");
     textElement.textContent = text;
     svg.appendChild(textElement);
