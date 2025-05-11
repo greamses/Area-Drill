@@ -654,6 +654,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Start with the first shape
   newQuestion(shapes[0].id);
 });
