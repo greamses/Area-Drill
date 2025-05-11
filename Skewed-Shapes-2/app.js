@@ -238,7 +238,7 @@ function drawShapeWithSVG(question) {
   const containerHeight = shapeContainer.clientHeight;
   const centerX = containerWidth / 2;
   const centerY = containerHeight / 2;
-  const scale = 15;
+  const scale = 12;
   
   const svgNS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNS, "svg");
@@ -427,12 +427,12 @@ function drawShapeWithSVG(question) {
       textElement.setAttribute("text-anchor", "middle");
       textElement.setAttribute("dominant-baseline", "hanging");
     } else if (position === 'left') {
-      textElement.setAttribute("x", x1 - 8);
+      textElement.setAttribute("x", x1 - 15);
       textElement.setAttribute("y", (y1 + y2) / 2);
       textElement.setAttribute("text-anchor", "end");
       textElement.setAttribute("dominant-baseline", "middle");
     } else if (position === 'right') {
-      textElement.setAttribute("x", x1 + 8);
+      textElement.setAttribute("x", x1 + 15);
       textElement.setAttribute("y", (y1 + y2) / 2);
       textElement.setAttribute("text-anchor", "start");
       textElement.setAttribute("dominant-baseline", "middle");
